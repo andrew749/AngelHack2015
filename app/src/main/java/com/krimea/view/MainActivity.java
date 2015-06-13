@@ -3,31 +3,38 @@ package com.krimea.view;
 import android.content.Context;
 import android.location.Criteria;
 import android.location.Location;
+import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
 import android.view.MenuItem;
 
+import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapFragment;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.MarkerOptions;
 import com.krimea.R;
 
+public class MainActivity extends AppCompatActivity implements OnMapReadyCallback, LocationListener {
+    private GoogleMap map;
+    private LocationManager locationManager;
+    private int MIN_UPDATE_TIME = 400;
+    private int MIN_UPDATE_DISTANCE = 1000;
 
-public class MainActivity extends AppCompatActivity implements OnMapReadyCallback {
-    MapFragment mapFrag;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if(getFragmentManager().findFragmentById(android.R.id.content) == null ) {
-            mapFrag = MapFragment.newInstance();
-            getFragmentManager().beginTransaction().add(android.R.id.content, mapFrag).commit();
-            mapFrag.getMapAsync(this);
-        }
+        setContentView(R.layout.activity_main);
+        MapFragment mapFrag = (MapFragment) getFragmentManager()
+                .findFragmentById(R.id.map);
+        mapFrag.getMapAsync(this);
+
+        locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+        map = ((MapFragment) getFragmentManager().findFragmentById(R.id.map)).getMap();
+        locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, MIN_UPDATE_TIME, MIN_UPDATE_DISTANCE, this);
     }
 
     @Override
@@ -58,7 +65,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         LocationManager locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
         Criteria criteria = new Criteria();
         String provider = locationManager.getBestProvider(criteria, true);
-
         // Get last known location
         Location myLoc = locationManager.getLastKnownLocation(provider);
         double latitude = myLoc.getLatitude();
@@ -66,6 +72,28 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         LatLng latLng = new LatLng(latitude, longitude);
         map.moveCamera(CameraUpdateFactory.newLatLng(latLng));
         map.animateCamera(CameraUpdateFactory.zoomTo(14));
-        map.addMarker(new MarkerOptions().position(new LatLng(latitude, longitude)).title("Ayy lmao").snippet("Ayy lmao"));
+}
+
+    @Override
+    public void onLocationChanged(Location loc) {
+        LatLng latLng = new LatLng(loc.getLatitude(), loc.getLongitude());
+        CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(latLng, 10);
+        map.animateCamera(cameraUpdate);
+        locationManager.removeUpdates(this);
+    }
+
+    @Override
+    public void onStatusChanged(String provider, int status, Bundle extras) {
+
+    }
+
+    @Override
+    public void onProviderEnabled(String provider) {
+
+    }
+
+    @Override
+    public void onProviderDisabled(String provider) {
+
     }
 }
