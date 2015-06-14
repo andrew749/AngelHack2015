@@ -15,12 +15,6 @@ public class LoginManager {
         this.context = context;
     }
 
-    public LoginManager getInstance(Context context) {
-        if (instance == null) {
-            instance = new LoginManager(context);
-        }
-        return instance;
-    }
 
     public void storeUserData(String name, String email, String password) {
         SharedPreferences prefs = context.getSharedPreferences(prefsFile, Context.MODE_PRIVATE);
