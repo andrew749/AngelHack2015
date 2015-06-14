@@ -18,7 +18,7 @@
         android:layout_height="373dp"
         android:src="@drawable/ic_report_problem_white_48dp"
         android:background="@drawable/circle"
-        android:id="@+id/button_panickk"
+        android:id="@+id/button_panick"
         android:layout_gravity="center_horizontal|top" />
 
 </FrameLayout>
