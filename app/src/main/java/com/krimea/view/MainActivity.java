@@ -12,19 +12,14 @@ import android.location.LocationManager;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.provider.Contacts;
 import android.provider.ContactsContract;
-import android.support.v7.app.AppCompatActivity;
 import android.telephony.gsm.SmsManager;
-import android.text.InputType;
 import android.util.Base64;
 import android.util.Log;
 import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageButton;
 import android.widget.ListView;
-
 
 import com.krimea.R;
 import com.krimea.adapter.CustomAdapter;
@@ -33,10 +28,8 @@ import com.krimea.util.Constants;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
-import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
-import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.impl.client.DefaultHttpClient;
@@ -50,18 +43,14 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
-import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Random;
 import java.util.Set;
 import java.util.Timer;
 import java.util.TimerTask;
 
-public class MainActivity extends Activity  {
+public class MainActivity extends Activity {
     private ImageButton addContact;
     private SharedPreferences sharedPreferences;
     private SharedPreferences.Editor editor;
@@ -76,14 +65,16 @@ public class MainActivity extends Activity  {
     public static boolean isButtonPressed = false;
     private String number = "5197812611";
     private ListView lv;
-
+    private Uri uriContact;
+    private String contactID;
     public static int[] colors = {R.color.color_turquoise, R.color.color_sun_flower, R.color.color_emerald, R.color.color_wet_asphalt
             , R.color.color_alizarin};
 
     static String panicid;
     private Set<String> contacts;
     private Set<String> numbers;
-    String email,password;
+    String email, password;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -99,12 +90,12 @@ public class MainActivity extends Activity  {
         LocationListener locListener = new MyLocationListener();
 
         provider = locationManager.getBestProvider(new Criteria(), true);
-        locationManager.requestLocationUpdates(provider , MIN_UPDATE_TIME, MIN_UPDATE_DISTANCE, locListener);
+        locationManager.requestLocationUpdates(provider, MIN_UPDATE_TIME, MIN_UPDATE_DISTANCE, locListener);
         contacts = sharedPreferences.getStringSet(Constants.KEY_CONTACTLIST, new HashSet<String>());
         numbers = sharedPreferences.getStringSet(Constants.KEY_NUMBERLIST, new HashSet<String>());
 
         lv = (ListView) findViewById(R.id.list);
-        lv.setAdapter(new CustomAdapter(this, contacts ,colors));
+        lv.setAdapter(new CustomAdapter(this, contacts, colors));
 
         addContact.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
@@ -112,50 +103,52 @@ public class MainActivity extends Activity  {
                 startActivityForResult(intent, Constants.KEY_PICKCONTACT);
             }
         });
-        email=getSharedPreferences("krimeaprefs", Context.MODE_PRIVATE).getString("email","trollolol");
-        password=getSharedPreferences("krimeaprefs",Context.MODE_PRIVATE).getString("password","whoa");
+        email = getSharedPreferences("krimeaprefs", Context.MODE_PRIVATE).getString("email", "trollolol");
+        password = getSharedPreferences("krimeaprefs", Context.MODE_PRIVATE).getString("password", "whoa");
 
         panick.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 sendMessage("ayylmao", number);
-                panic p=new panic();
+                panic p = new panic();
                 p.execute();
                 timer.purge();
-                timer.schedule(runnable,1000,1000);
+                timer.schedule(runnable, 1000, 10000);
 
             }
         });
 
     }
-    Timer timer=new Timer();
-    TimerTask runnable=new TimerTask() {
+
+    Timer timer = new Timer();
+    TimerTask runnable = new TimerTask() {
         @Override
         public void run() {
-            Random random=new Random();
-            locationthread t=new locationthread(""+(43.6469+random.nextFloat()/100),""+(-79.3872+random.nextFloat()/100));
+            Random random = new Random();
+            locationthread t = new locationthread("" + (43.6469 + random.nextFloat() / 100), "" + (-79.3872 + random.nextFloat() / 100));
             t.execute();
         }
     };
+
     public String performPost() {
         HttpUriRequest request = new HttpPost("http://45.55.212.205:8000/panic"); // Or HttpPost(), depends on your needs
         String credentials = "andrewcod749@gmail.com" + ":" + "hello";
         String base64EncodedCredentials = Base64.encodeToString(credentials.getBytes(), Base64.NO_WRAP);
         request.addHeader("Authorization", "Basic " + base64EncodedCredentials);
-        HttpParams params=request.getParams();
+        HttpParams params = request.getParams();
         request.setParams(params);
         HttpClient httpclient = new DefaultHttpClient();
-        InputStream is=null;
+        InputStream is = null;
         try {
-            HttpResponse resp=httpclient.execute(request);
-            HttpEntity entity=resp.getEntity();
-            is=entity.getContent();
-            Log.d("please","pleaes") ;
+            HttpResponse resp = httpclient.execute(request);
+            HttpEntity entity = resp.getEntity();
+            is = entity.getContent();
+            Log.d("please", "pleaes");
         } catch (IOException e) {
             e.printStackTrace();
         }
-        String t=getStringFromInputStream(is);
-        Log.d("cmon",t);
-        JSONObject obj= null;
+        String t = getStringFromInputStream(is);
+        Log.d("cmon", t);
+        JSONObject obj = null;
         try {
             obj = new JSONObject(t);
         } catch (JSONException e) {
@@ -166,8 +159,8 @@ public class MainActivity extends Activity  {
         } catch (JSONException e) {
             e.printStackTrace();
         }
-        panicid=t;
-        Log.d("d",t);
+        panicid = t;
+        Log.d("d", t);
         return "";
     }
 
@@ -201,12 +194,13 @@ public class MainActivity extends Activity  {
         return sb.toString();
 
     }
-    private void sendLocationData(String lat,String lon){
+
+    private void sendLocationData(String lat, String lon) {
         ArrayList<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>();
         nameValuePairs.add(new BasicNameValuePair("lat", lat));
         nameValuePairs.add(new BasicNameValuePair("lon", lon));
 
-        HttpPost request = new HttpPost("http://45.55.212.205:8000/panic/"+panicid+"/update"); // Or HttpPost(), depends on your needs
+        HttpPost request = new HttpPost("http://45.55.212.205:8000/panic/" + panicid + "/update"); // Or HttpPost(), depends on your needs
         String credentials = "andrewcod749@gmail.com" + ":" + "hello";
         String base64EncodedCredentials = Base64.encodeToString(credentials.getBytes(), Base64.NO_WRAP);
         request.addHeader("Authorization", "Basic " + base64EncodedCredentials);
@@ -216,29 +210,109 @@ public class MainActivity extends Activity  {
             e.printStackTrace();
         }
         HttpClient httpclient = new DefaultHttpClient();
-        InputStream is=null;
+        InputStream is = null;
         try {
-            HttpResponse resp=httpclient.execute(request);
-            HttpEntity entity=resp.getEntity();
-            is=entity.getContent();
-           Log.d("please","pleaes") ;
+            HttpResponse resp = httpclient.execute(request);
+            HttpEntity entity = resp.getEntity();
+            is = entity.getContent();
+            Log.d("please", "pleaes");
         } catch (IOException e) {
             e.printStackTrace();
         }
-        String t=getStringFromInputStream(is);
+        String t = getStringFromInputStream(is);
         return;
     }
-    class locationthread extends  AsyncTask<Void,Void,Void>{
-        String clat;
-        String clon;
-        public locationthread(String clat,String clon) {
-            this.clat=clat;
-            this.clon=clon;
+
+    private String getContactName() {
+
+        String contactName = null;
+
+        // querying contact data store
+        Cursor cursor = getContentResolver().query(uriContact, null, null, null, null);
+
+        if (cursor.moveToFirst()) {
+            contactName = cursor.getString(cursor.getColumnIndex(ContactsContract.Contacts.DISPLAY_NAME));
+        }
+
+        cursor.close();
+        return contactName;
+    }
+
+    private String getContactNumber() {
+
+        String contactNumber = null;
+
+        // getting contacts ID
+        Cursor cursorID = getContentResolver().query(uriContact,
+                new String[]{ContactsContract.Contacts._ID},
+                null, null, null);
+
+        if (cursorID.moveToFirst()) {
+
+            contactID = cursorID.getString(cursorID.getColumnIndex(ContactsContract.Contacts._ID));
+        }
+
+        cursorID.close();
+
+        Cursor cursorPhone = getContentResolver().query(ContactsContract.CommonDataKinds.Phone.CONTENT_URI,
+                new String[]{ContactsContract.CommonDataKinds.Phone.NUMBER},
+
+                ContactsContract.CommonDataKinds.Phone.CONTACT_ID + " = ? AND " +
+                        ContactsContract.CommonDataKinds.Phone.TYPE + " = " +
+                        ContactsContract.CommonDataKinds.Phone.TYPE_MOBILE,
+
+                new String[]{contactID},
+                null);
+
+        if (cursorPhone.moveToFirst()) {
+            contactNumber = cursorPhone.getString(cursorPhone.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER));
+        }
+
+        cursorPhone.close();
+        return contactNumber;
+    }
+    private void clear() {
+        HttpPost request = new HttpPost("http://45.55.212.205:8000/panic/" + panicid + "/allclear"); // Or HttpPost(), depends on your needs
+        String credentials = "andrewcod749@gmail.com" + ":" + "hello";
+        String base64EncodedCredentials = Base64.encodeToString(credentials.getBytes(), Base64.NO_WRAP);
+        request.addHeader("Authorization", "Basic " + base64EncodedCredentials);
+        HttpClient httpclient = new DefaultHttpClient();
+        InputStream is = null;
+        try {
+            HttpResponse resp = httpclient.execute(request);
+            HttpEntity entity = resp.getEntity();
+            is = entity.getContent();
+            Log.d("please", "pleaes");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        String t = getStringFromInputStream(is);
+        return;
+    }
+
+    class allclear extends AsyncTask<Void, Void, Void> {
+        public allclear() {
         }
 
         @Override
         protected Void doInBackground(Void... params) {
-            sendLocationData(clat,clon);
+            clear();
+            return null;
+        }
+    }
+
+    class locationthread extends AsyncTask<Void, Void, Void> {
+        String clat;
+        String clon;
+
+        public locationthread(String clat, String clon) {
+            this.clat = clat;
+            this.clon = clon;
+        }
+
+        @Override
+        protected Void doInBackground(Void... params) {
+            sendLocationData(clat, clon);
             return null;
         }
 
@@ -247,34 +321,37 @@ public class MainActivity extends Activity  {
             super.onPostExecute(aVoid);
         }
     }
-    class panic extends AsyncTask<Void,Void,String>{
+
+    class panic extends AsyncTask<Void, Void, String> {
 
         @Override
         protected void onPostExecute(String aVoid) {
             super.onPostExecute(aVoid);
-            panicid=aVoid;
+            panicid = aVoid;
         }
 
         @Override
         protected String doInBackground(Void... params) {
-            return performPost() ;
+            return performPost();
         }
     }
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_main, menu);
         return true;
     }
+
     public class MyLocationListener implements LocationListener {
 
         @Override
         public void onLocationChanged(Location loc) {
-            if(loc != null && isButtonPressed) {
-                Log.d("loc changed","cmon");
+            if (loc != null && isButtonPressed) {
+                Log.d("loc changed", "cmon");
                 latitude = loc.getLatitude();
                 longitude = loc.getLongitude();
-                locationthread t=new locationthread(latitude+"",longitude+"");
+                locationthread t = new locationthread(latitude + "", longitude + "");
                 t.execute();
                 String message = "My current Latitude = " + latitude + " Longitude = " + longitude;
                 sendMessage(message, number);
@@ -301,31 +378,25 @@ public class MainActivity extends Activity  {
         SmsManager.getDefault().sendTextMessage(number, null, message, null, null);
     }
 
-    @Override
     public void onActivityResult(int reqCode, int resultCode, Intent data) {
         super.onActivityResult(reqCode, resultCode, data);
-
-        switch (reqCode) {
-            case (Constants.KEY_PICKCONTACT) :
-                if (resultCode == Activity.RESULT_OK) {
-                    Uri contactData = data.getData();
-                    Cursor c =  managedQuery(contactData, null, null, null, null);
-                    if(c.moveToFirst()) {
-                        contacts.add(c.getString(c.getColumnIndex(ContactsContract.PhoneLookup.DISPLAY_NAME)));
-                        numbers.add(c.getString(c.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER)));
-
-                        lv.setAdapter(new CustomAdapter(this, contacts, colors));
-                    }
-                    }
-                }
+        if (reqCode == Constants.KEY_PICKCONTACT && resultCode == Activity.RESULT_OK) {
+            uriContact = data.getData();
+            String contact = getContactName();
+            String number = getContactNumber();
+            contacts.add(contact);
+            numbers.add(number);
+            lv.setAdapter(new CustomAdapter(this, contacts, colors));
+        }
     }
+
     @Override
     public void onStop() {
         super.onPause();
-       if(contacts != null && numbers!=null) {
+        if (contacts != null && numbers != null) {
             editor.putStringSet(Constants.KEY_CONTACTLIST, contacts);
             editor.putStringSet(Constants.KEY_NUMBERLIST, numbers);
             editor.commit();
-    }
+        }
     }
 }
