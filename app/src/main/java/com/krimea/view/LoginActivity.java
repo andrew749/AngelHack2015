@@ -9,6 +9,8 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Base64;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -19,16 +21,31 @@ import com.krimea.R;
 import com.krimea.util.Constants;
 
 import org.apache.http.HttpRequest;
+import org.apache.http.HttpResponse;
+import org.apache.http.NameValuePair;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.entity.UrlEncodedFormEntity;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.entity.AbstractHttpEntity;
+import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.message.BasicNameValuePair;
+import org.apache.http.protocol.HTTP;
 
 import java.io.BufferedReader;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
+import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.ProtocolException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
 
 public class LoginActivity extends Activity implements View.OnClickListener {
     private Button login;
@@ -93,9 +110,7 @@ public class LoginActivity extends Activity implements View.OnClickListener {
 
         @Override
         protected Boolean doInBackground(Void... params) {
-
-            performPost("email="+email+"&password="+password);
-            return true;
+            return performPost();
         }
 
         @Override
@@ -103,54 +118,70 @@ public class LoginActivity extends Activity implements View.OnClickListener {
             startActivity(new Intent(LoginActivity.this, MainActivity.class));
             LoginActivity.this.finish();
         }
-        public void performPost(String encodedData) {
-            HttpURLConnection urlc = null;
-            OutputStreamWriter out = null;
-            DataOutputStream dataout = null;
-            BufferedReader in = null;
+        private String getB64Auth (String login, String pass) {
+            String source=login+":"+pass;
+            String ret="Basic "+Base64.encodeToString(source.getBytes(),Base64.URL_SAFE| Base64.NO_WRAP);
+            return ret;
+        }
+        public Boolean performPost() {
+            URL d= null;
             try {
-                URL url = new URL(":8000/signup");
-                urlc = (HttpURLConnection) url.openConnection();
-                urlc.setRequestMethod("POST");
-                urlc.setDoOutput(true);
-                urlc.setDoInput(true);
-                urlc.setUseCaches(false);
-                urlc.setAllowUserInteraction(false);
-                urlc.setRequestProperty("Content-Type","application/x-www-form-urlencoded");
-                dataout = new DataOutputStream(urlc.getOutputStream());
-                // perform POST operation
-                dataout.writeBytes(encodedData);
-                int responseCode = urlc.getResponseCode();
-                in = new BufferedReader(new InputStreamReader(urlc.getInputStream()),8096);
-                String response;
-                // write html to System.out for debug
-                while ((response = in.readLine()) != null) {
-                    System.out.println(response);
-                }
-                in.close();
-            } catch (ProtocolException e) {
+                d = new URL("http://45.55.212.205:8000/signup?email=andrewcod749@gmail.com&password=hello");
+            } catch (MalformedURLException e) {
                 e.printStackTrace();
+                return false;
+            }
+            HttpURLConnection conn = null;
+            try {
+                conn = (HttpURLConnection)d.openConnection();
             } catch (IOException e) {
                 e.printStackTrace();
-            } finally {
-                if (out != null) {
-                    try {
-                        out.close();
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                }
-                if (in != null) {
-                    try {
-                        in.close();
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                }
+                return false;
             }
+            conn.setReadTimeout(30000);
+            conn.setInstanceFollowRedirects(true);
+            InputStream is=null;
+            try {
+                is=conn.getInputStream();
+                Log.d("please", "fdafdas");
+            } catch (IOException e) {
+                e.printStackTrace();
+                return false;
+            }
+            String t=getStringFromInputStream(is);
+            return true;
         }
     }
 
+    // convert InputStream to String
+    private static String getStringFromInputStream(InputStream is) {
+
+        BufferedReader br = null;
+        StringBuilder sb = new StringBuilder();
+
+        String line;
+        try {
+
+            br = new BufferedReader(new InputStreamReader(is));
+            while ((line = br.readLine()) != null) {
+                sb.append(line);
+            }
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            if (br != null) {
+                try {
+                    br.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+
+        return sb.toString();
+
+    }
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
