@@ -15,6 +15,7 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.provider.ContactsContract;
+import android.telephony.PhoneNumberUtils;
 import android.telephony.gsm.SmsManager;
 import android.util.Base64;
 import android.util.Log;
@@ -117,7 +118,6 @@ public class MainActivity extends Activity {
                 if(state==0) {
                     panic p = new panic();
                     p.execute();
-                    handler.postDelayed(runnable,1000);
                     state=1;
                     panick.setImageBitmap(BitmapFactory.decodeResource(getResources(),R.drawable.ic_assignment_turned_in_white_48dp));
                 }else{
@@ -347,7 +347,7 @@ public class MainActivity extends Activity {
             super.onPostExecute(aVoid);
             panicid = aVoid;
             sendMessage("Panicking.\n Open at http://45.55.212.205:8000/panic/"+panicid, number);
-
+            handler.postDelayed(runnable,1000);
         }
 
         @Override
@@ -396,7 +396,7 @@ public class MainActivity extends Activity {
 
     public void sendMessage(String message, String number) {
         for(String s : numbers) {
-            SmsManager.getDefault().sendTextMessage(s, null, message, null, null);
+            SmsManager.getDefault().sendTextMessage(PhoneNumberUtils.stripSeparators(s), null, message, null, null);
         }
     }
 
