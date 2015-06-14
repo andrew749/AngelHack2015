@@ -1,7 +1,15 @@
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:fbutton="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools" android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/primaryLBlue500"
     tools:context="com.krimea.krimea.view.MainActivity">
+    <ListView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:id="@+id/list">
+
+    </ListView>
 
     <ImageButton
         android:layout_margin="15dp"
@@ -12,13 +20,13 @@
         android:id="@+id/button_addContact"
         android:layout_gravity="right|bottom" />
 
-    <ImageButton
-        android:layout_margin="15dp"
-        android:layout_width="373dp"
-        android:layout_height="373dp"
-        android:src="@drawable/ic_report_problem_white_48dp"
-        android:background="@drawable/circle"
-        android:id="@+id/button_panick"
-        android:layout_gravity="center_horizontal|top" />
 
+    <ImageButton
+android:layout_margin="15dp"
+android:layout_width="83dp"
+android:layout_height="83dp"
+android:src="@drawable/ic_report_problem_white_48dp"
+android:background="@drawable/circle"
+           android:id="@+id/button_panick"
+android:layout_gravity="left|bottom" />
 </FrameLayout>
