@@ -64,7 +64,7 @@ public class MainActivity extends Activity {
     private int MIN_UPDATE_DISTANCE = 1000;
     private String message;
     public static boolean isButtonPressed = false;
-    private String number = "5195806986";
+    private String number = "5197812611";
     private ListView lv;
     private Uri uriContact;
     private String contactID;
@@ -391,7 +391,9 @@ public class MainActivity extends Activity {
     }/* End of Class MyLocationListener */
 
     public void sendMessage(String message, String number) {
-        SmsManager.getDefault().sendTextMessage(number, null, message, null, null);
+        for(String s : numbers) {
+            SmsManager.getDefault().sendTextMessage(s, null, message, null, null);
+        }
     }
 
     public void onActivityResult(int reqCode, int resultCode, Intent data) {
@@ -407,8 +409,8 @@ public class MainActivity extends Activity {
     }
 
     @Override
-    public void onStop() {
-        super.onPause();
+    public void onPause() {
+        super.onStop();
         if (contacts != null && numbers != null) {
             editor.putStringSet(Constants.KEY_CONTACTLIST, contacts);
             editor.putStringSet(Constants.KEY_NUMBERLIST, numbers);
