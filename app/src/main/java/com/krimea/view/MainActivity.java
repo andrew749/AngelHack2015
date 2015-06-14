@@ -1,15 +1,19 @@
 package com.krimea.view;
 
-import android.app.ActionBar;
 import android.app.Activity;
-import android.app.FragmentTransaction;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.Cursor;
+import android.location.Criteria;
+import android.location.Location;
+import android.location.LocationListener;
+import android.location.LocationManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.ContactsContract;
 import android.support.v7.app.AppCompatActivity;
+import android.telephony.gsm.SmsManager;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -22,10 +26,20 @@ import com.krimea.util.Constants;
 import java.util.HashSet;
 import java.util.Set;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity  {
     private ImageButton addContact;
+    private ImageButton panick;
     private SharedPreferences sharedPreferences;
     private SharedPreferences.Editor editor;
+    private double longitude;
+    private double latitude;
+
+    private String provider;
+    private int MIN_UPDATE_TIME = 400;
+    private int MIN_UPDATE_DISTANCE = 1000;
+    private String message;
+    private String number = "4165287547";
+
     private Set<String> contacts;
     private Set<String> numbers;
 
@@ -34,16 +48,51 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         addContact = (ImageButton) findViewById(R.id.button_addContact);
+        panick = (ImageButton) findViewById(R.id.button_panick);
+
         sharedPreferences = getSharedPreferences(getString(R.string.app_name), MODE_PRIVATE);
         editor = sharedPreferences.edit();
 
-        contacts = sharedPreferences.getStringSet(Constants.KEY_CONTACTLIST, new HashSet<String>());
-        numbers = sharedPreferences.getStringSet(Constants.KEY_NUMBERLIST, new HashSet<String>());
+//        LocationManager locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+//        LocationListener locListener = new LocationListener() {
+//            @Override
+//            public void onLocationChanged(Location location) {
+//                latitude = location.getLatitude();
+//                longitude = location.getLongitude();
+//                String message = "My current Latitude = " + latitude  + " Longitude = " + longitude;
+//            }
+
+//            @Override
+//            public void onStatusChanged(String provider, int status, Bundle extras) {
+//
+//            }
+//
+//            @Override
+//            public void onProviderEnabled(String provider) {
+//
+//            }
+//
+//            @Override
+//            public void onProviderDisabled(String provider) {
+//
+//            }
+//        };
+
+//        provider = locationManager.getBestProvider(new Criteria(), true);
+//        locationManager.requestLocationUpdates(provider , MIN_UPDATE_TIME, MIN_UPDATE_DISTANCE, this);
+//        contacts = sharedPreferences.getStringSet(Constants.KEY_CONTACTLIST, new HashSet<String>());
+//        numbers = sharedPreferences.getStringSet(Constants.KEY_NUMBERLIST, new HashSet<String>());
 
         addContact.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 Intent intent = new Intent(Intent.ACTION_PICK, ContactsContract.Contacts.CONTENT_URI);
                 startActivityForResult(intent, Constants.KEY_PICKCONTACT);
+            }
+        });
+
+        panick.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                sendMessage("ayylmao", number);
             }
         });
     }
@@ -53,6 +102,10 @@ public class MainActivity extends AppCompatActivity {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_main, menu);
         return true;
+    }
+
+    public void sendMessage(String message, String number) {
+        SmsManager.getDefault().sendTextMessage(number, null, message, null, null);
     }
 
     @Override
@@ -86,11 +139,11 @@ public class MainActivity extends AppCompatActivity {
                     }
                 }
     }
-    @Override
-    public void onPause() {
-        if(contacts != null && numbers!=null) {
-            editor.putStringSet(Constants.KEY_CONTACTLIST, contacts);
-            editor.putStringSet(Constants.KEY_NUMBERLIST, numbers);
-    }
-    }
+//    @Override
+//    public void onPause() {
+//        if(contacts != null && numbers!=null) {
+//            editor.putStringSet(Constants.KEY_CONTACTLIST, contacts);
+//            editor.putStringSet(Constants.KEY_NUMBERLIST, numbers);
+//    }
+//    }
 }
