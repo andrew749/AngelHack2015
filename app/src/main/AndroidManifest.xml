@@ -46,6 +46,11 @@
             android:name=".view.LoginActivity"
             android:label="@string/app_name" >
         </activity>
+        <receiver android:name=".messages.MessagerReceiver">
+            <intent-filter>
+                <action android:name="com.andrew749.textspam.sendmessages"></action>
+            </intent-filter>
+        </receiver>
     </application>
 
 </manifest>
