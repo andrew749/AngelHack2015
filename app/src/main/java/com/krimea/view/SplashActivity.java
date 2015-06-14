@@ -15,7 +15,7 @@ public class SplashActivity extends Activity {
         setContentView(R.layout.activity_splash);
         new android.os.Handler().postDelayed(new Runnable() {
             public void run() {
-                SplashActivity.this.startActivity(new Intent(SplashActivity.this, MainActivity.class));
+                SplashActivity.this.startActivity(new Intent(SplashActivity.this, LoginActivity.class));
                 SplashActivity.this.finish();
             }
         }, SPLASH_DURATION);

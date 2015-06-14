@@ -20,6 +20,7 @@ import com.krimea.R;
 
 public class MainActivity extends AppCompatActivity implements OnMapReadyCallback, LocationListener {
     private GoogleMap map;
+    private String provider;
     private LocationManager locationManager;
     private int MIN_UPDATE_TIME = 400;
     private int MIN_UPDATE_DISTANCE = 1000;
@@ -28,13 +29,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        MapFragment mapFrag = (MapFragment) getFragmentManager()
-                .findFragmentById(R.id.map);
-        mapFrag.getMapAsync(this);
-
-        locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
-        map = ((MapFragment) getFragmentManager().findFragmentById(R.id.map)).getMap();
-        locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, MIN_UPDATE_TIME, MIN_UPDATE_DISTANCE, this);
     }
 
     @Override
@@ -63,8 +57,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     public void onMapReady(GoogleMap map) {
         map.setMyLocationEnabled(true);
         LocationManager locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
-        Criteria criteria = new Criteria();
-        String provider = locationManager.getBestProvider(criteria, true);
+
         // Get last known location
         Location myLoc = locationManager.getLastKnownLocation(provider);
         double latitude = myLoc.getLatitude();
@@ -77,8 +70,8 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     @Override
     public void onLocationChanged(Location loc) {
         LatLng latLng = new LatLng(loc.getLatitude(), loc.getLongitude());
-        CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(latLng, 10);
-        map.animateCamera(cameraUpdate);
+        map.moveCamera(CameraUpdateFactory.newLatLng(latLng));
+        map.animateCamera(CameraUpdateFactory.zoomTo(14));
         locationManager.removeUpdates(this);
     }
 
