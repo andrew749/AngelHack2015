@@ -3,6 +3,7 @@ package com.krimea.view;
 import android.app.ActionBar;
 import android.app.Activity;
 import android.app.FragmentTransaction;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.Cursor;
@@ -19,7 +20,19 @@ import android.widget.ImageButton;
 import com.krimea.R;
 import com.krimea.util.Constants;
 
+import org.apache.http.HttpResponse;
+import org.apache.http.NameValuePair;
+import org.apache.http.client.ClientProtocolException;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.entity.UrlEncodedFormEntity;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.message.BasicNameValuePair;
+
+import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 public class MainActivity extends AppCompatActivity {
@@ -28,7 +41,7 @@ public class MainActivity extends AppCompatActivity {
     private SharedPreferences.Editor editor;
     private Set<String> contacts;
     private Set<String> numbers;
-
+    String email,password;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -46,8 +59,32 @@ public class MainActivity extends AppCompatActivity {
                 startActivityForResult(intent, Constants.KEY_PICKCONTACT);
             }
         });
+        email=getSharedPreferences("krimeaprefs", Context.MODE_PRIVATE).getString("email","trollolol");
+        password=getSharedPreferences("krimeaprefs",Context.MODE_PRIVATE).getString("password","whoa");
     }
+    private void sendLocationData(){
 
+    }
+    public void postData() {
+        RequestParams params = new RequestParams();
+        params.put("username", email);
+        params.put("password", password);
+
+        AsyncHttpClient client = new AsyncHttpClient();
+        client.post("https://url.com/getdata", params, new AsyncHttpResponseHandler() {
+            @Override
+            public void onSuccess(String response) {
+                // success
+                //start service to send data to node server
+            }
+
+            @Override
+            public void onFailure(Throwable error, String content) {
+                // something went wrong
+                //lolz gg
+            }
+        });
+    }
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
