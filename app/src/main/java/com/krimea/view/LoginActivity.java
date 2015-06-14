@@ -3,6 +3,7 @@ package com.krimea.view;
 import android.app.Activity;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -14,6 +15,11 @@ import android.widget.EditText;
 
 import com.krimea.R;
 import com.krimea.util.Constants;
+
+import org.apache.http.HttpRequest;
+
+import java.net.HttpURLConnection;
+import java.net.URL;
 
 public class LoginActivity extends Activity implements View.OnClickListener {
     private Button login;
@@ -67,6 +73,27 @@ public class LoginActivity extends Activity implements View.OnClickListener {
         }
     }
 
+    private void handleLogin(){
+
+    }
+    class LoginTask extends AsyncTask<Void,Void,Void>{
+        String name,email,password;
+        public LoginTask(String name,String email,String password) {
+            this.name=name;
+            this.email=email;
+            this.password=password;
+        }
+
+        @Override
+        protected Void doInBackground(Void... params) {
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Void aVoid) {
+            super.onPostExecute(aVoid);
+        }
+    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
