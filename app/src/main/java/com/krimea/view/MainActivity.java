@@ -13,6 +13,7 @@ import android.location.LocationManager;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Handler;
 import android.provider.ContactsContract;
 import android.telephony.gsm.SmsManager;
 import android.util.Base64;
@@ -113,15 +114,14 @@ public class MainActivity extends Activity {
                 if(state==0) {
                     panic p = new panic();
                     p.execute();
-                    timer.purge();
-                    timer.schedule(runnable, 1000, 10000);
+                    handler.postDelayed(runnable,1000);
                     state=1;
                     panick.setImageBitmap(BitmapFactory.decodeResource(getResources(),R.drawable.ic_assignment_turned_in_white_48dp));
                 }else{
                     sendMessage("All Clear", number);
                     allclear clear=new allclear();
                     clear.execute();
-                    timer.cancel();
+                    handler.removeCallbacks(runnable);
                     state=0;
                     panick.setImageBitmap(BitmapFactory.decodeResource(getResources(),R.drawable.ic_report_problem_white_48dp));
                 }
@@ -129,17 +129,18 @@ public class MainActivity extends Activity {
         });
 
     }
-
-    Timer timer = new Timer();
-    TimerTask runnable = new TimerTask() {
+    Handler handler=new Handler();
+    Runnable runnable = new Runnable() {
         @Override
         public void run() {
             Random random = new Random();
-
             String location="" + (43.6469 + random.nextFloat() / 100)+ ", " + (-79.3872 + random.nextFloat() / 100);
             sendMessage("Location: "+location,number);
             locationthread t = new locationthread("" + (43.6469 + random.nextFloat() / 100), "" + (-79.3872 + random.nextFloat() / 100));
             t.execute();
+            if(state==1){
+                handler.postDelayed(this,10000);
+            }
         }
     };
 
