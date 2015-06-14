@@ -39,6 +39,8 @@ import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.params.HttpParams;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -121,10 +123,10 @@ public class MainActivity extends AppCompatActivity  {
         panick.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 sendMessage("ayylmao", number);
-//                panic p=new panic();
-//                p.execute();
-                locationthread t=new locationthread();
-                t.execute();
+                panic p=new panic();
+                p.execute();
+//                locationthread t=new locationthread();
+//                t.execute();
             }
         });
     }
@@ -134,32 +136,36 @@ public class MainActivity extends AppCompatActivity  {
         return ret;
     }
     public String performPost() {
-        URL d= null;
-        try {
-            d = new URL("http://45.55.212.205:8000/panic");
-        } catch (MalformedURLException e) {
-            e.printStackTrace();
-        }
-        HttpURLConnection conn = null;
-        try {
-            conn = (HttpURLConnection)d.openConnection();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        if (conn != null) {
-            conn.setRequestProperty("Authorization", getB64Auth("andrewcod749@gmail.com","hello"));
-        }
-        conn.setReadTimeout(30000);
-        conn.setInstanceFollowRedirects(true);
+        HttpUriRequest request = new HttpPost("http://45.55.212.205:8000/panic"); // Or HttpPost(), depends on your needs
+        String credentials = "andrewcod749@gmail.com" + ":" + "hello";
+        String base64EncodedCredentials = Base64.encodeToString(credentials.getBytes(), Base64.NO_WRAP);
+        request.addHeader("Authorization", "Basic " + base64EncodedCredentials);
+        HttpParams params=request.getParams();
+        request.setParams(params);
+        HttpClient httpclient = new DefaultHttpClient();
         InputStream is=null;
         try {
-            is=conn.getInputStream();
-            Log.d("please", "fdafdas");
+            HttpResponse resp=httpclient.execute(request);
+            HttpEntity entity=resp.getEntity();
+            is=entity.getContent();
+            Log.d("please","pleaes") ;
         } catch (IOException e) {
             e.printStackTrace();
         }
         String t=getStringFromInputStream(is);
-        return t;
+        Log.d("cmon",t);
+        JSONObject obj= null;
+        try {
+            obj = new JSONObject(t);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        try {
+            return obj.getString("_id");
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        return "";
     }
 
 
@@ -227,8 +233,6 @@ public class MainActivity extends AppCompatActivity  {
         }
     }
     class panic extends AsyncTask<Void,Void,String>{
-        public panic() {
-        }
 
         @Override
         protected void onPostExecute(String aVoid) {

@@ -20,15 +20,18 @@ import android.widget.EditText;
 import com.krimea.R;
 import com.krimea.util.Constants;
 
+import org.apache.http.HttpEntity;
 import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.HttpPost;
+import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.entity.AbstractHttpEntity;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.message.BasicNameValuePair;
+import org.apache.http.params.HttpParams;
 import org.apache.http.protocol.HTTP;
 
 import java.io.BufferedReader;
@@ -124,26 +127,17 @@ public class LoginActivity extends Activity implements View.OnClickListener {
             return ret;
         }
         public Boolean performPost() {
-            URL d= null;
-            try {
-                d = new URL("http://45.55.212.205:8000/signup?email=andrewcod749@gmail.com&password=hello");
-            } catch (MalformedURLException e) {
-                e.printStackTrace();
-                return false;
-            }
-            HttpURLConnection conn = null;
-            try {
-                conn = (HttpURLConnection)d.openConnection();
-            } catch (IOException e) {
-                e.printStackTrace();
-                return false;
-            }
-            conn.setReadTimeout(30000);
-            conn.setInstanceFollowRedirects(true);
+            HttpUriRequest request = new HttpPost("http://45.55.212.205:8000/signup");
+            HttpParams params=request.getParams();
+            params.setParameter("email",email);
+            params.setParameter("password",password);
+            request.setParams(params);
+            HttpClient httpclient = new DefaultHttpClient();
             InputStream is=null;
             try {
-                is=conn.getInputStream();
-                Log.d("please", "fdafdas");
+                HttpResponse resp=httpclient.execute(request);
+                HttpEntity entity=resp.getEntity();
+                is=entity.getContent();
             } catch (IOException e) {
                 e.printStackTrace();
                 return false;
