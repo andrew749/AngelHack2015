@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.Cursor;
+import android.graphics.BitmapFactory;
 import android.location.Criteria;
 import android.location.Location;
 import android.location.LocationListener;
@@ -63,7 +64,7 @@ public class MainActivity extends Activity {
     private int MIN_UPDATE_DISTANCE = 1000;
     private String message;
     public static boolean isButtonPressed = false;
-    private String number = "5197812611";
+    private String number = "5195806986";
     private ListView lv;
     private Uri uriContact;
     private String contactID;
@@ -74,7 +75,8 @@ public class MainActivity extends Activity {
     private Set<String> contacts;
     private Set<String> numbers;
     String email, password;
-
+    //state of 0 is panic, 1 is clear
+    int state=0;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -108,12 +110,21 @@ public class MainActivity extends Activity {
 
         panick.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                sendMessage("ayylmao", number);
-                panic p = new panic();
-                p.execute();
-                timer.purge();
-                timer.schedule(runnable, 1000, 10000);
-
+                if(state==0) {
+                    panic p = new panic();
+                    p.execute();
+                    timer.purge();
+                    timer.schedule(runnable, 1000, 10000);
+                    state=1;
+                    panick.setImageBitmap(BitmapFactory.decodeResource(getResources(),R.drawable.ic_assignment_turned_in_white_48dp));
+                }else{
+                    sendMessage("All Clear", number);
+                    allclear clear=new allclear();
+                    clear.execute();
+                    timer.cancel();
+                    state=0;
+                    panick.setImageBitmap(BitmapFactory.decodeResource(getResources(),R.drawable.ic_report_problem_white_48dp));
+                }
             }
         });
 
@@ -124,6 +135,9 @@ public class MainActivity extends Activity {
         @Override
         public void run() {
             Random random = new Random();
+
+            String location="" + (43.6469 + random.nextFloat() / 100)+ ", " + (-79.3872 + random.nextFloat() / 100);
+            sendMessage("Location: "+location,number);
             locationthread t = new locationthread("" + (43.6469 + random.nextFloat() / 100), "" + (-79.3872 + random.nextFloat() / 100));
             t.execute();
         }
@@ -328,6 +342,8 @@ public class MainActivity extends Activity {
         protected void onPostExecute(String aVoid) {
             super.onPostExecute(aVoid);
             panicid = aVoid;
+            sendMessage("Panicking.\n Open at http://45.55.212.205:8000/panic/"+panicid, number);
+
         }
 
         @Override
