@@ -58,6 +58,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Random;
 import java.util.Set;
+import java.util.Timer;
+import java.util.TimerTask;
 
 public class MainActivity extends Activity  {
     private ImageButton addContact;
@@ -118,15 +120,22 @@ public class MainActivity extends Activity  {
                 sendMessage("ayylmao", number);
                 panic p=new panic();
                 p.execute();
-                for (int i=0;i<10;i++){
-                    Random random=new Random();
-                    locationthread t=new locationthread(""+(43.6469+random.nextFloat()/100),""+(-79.3872+random.nextFloat()/100));
-                    t.execute();
-                }
+                timer.purge();
+                timer.schedule(runnable,1000,1000);
+
             }
         });
 
     }
+    Timer timer=new Timer();
+    TimerTask runnable=new TimerTask() {
+        @Override
+        public void run() {
+            Random random=new Random();
+            locationthread t=new locationthread(""+(43.6469+random.nextFloat()/100),""+(-79.3872+random.nextFloat()/100));
+            t.execute();
+        }
+    };
     public String performPost() {
         HttpUriRequest request = new HttpPost("http://45.55.212.205:8000/panic"); // Or HttpPost(), depends on your needs
         String credentials = "andrewcod749@gmail.com" + ":" + "hello";
@@ -197,7 +206,7 @@ public class MainActivity extends Activity  {
         nameValuePairs.add(new BasicNameValuePair("lat", lat));
         nameValuePairs.add(new BasicNameValuePair("lon", lon));
 
-        HttpPost request = new HttpPost("http://45.55.212.205:8000/panic/"+"557d37a75f6af9a1210a9a25"+"/update"); // Or HttpPost(), depends on your needs
+        HttpPost request = new HttpPost("http://45.55.212.205:8000/panic/"+panicid+"/update"); // Or HttpPost(), depends on your needs
         String credentials = "andrewcod749@gmail.com" + ":" + "hello";
         String base64EncodedCredentials = Base64.encodeToString(credentials.getBytes(), Base64.NO_WRAP);
         request.addHeader("Authorization", "Basic " + base64EncodedCredentials);
