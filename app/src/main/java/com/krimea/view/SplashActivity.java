@@ -17,7 +17,7 @@ public class SplashActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_splash);
         SharedPreferences prefs = getSharedPreferences(getString(R.string.app_name), MODE_PRIVATE);
-//        hasLogged = prefs.getBoolean(Constants.hasLogged,false);
+        hasLogged = prefs.getBoolean(Constants.hasLogged,false);
         new android.os.Handler().postDelayed(new Runnable() {
             public void run() {
                 if(hasLogged) {

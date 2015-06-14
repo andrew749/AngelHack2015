@@ -15,6 +15,7 @@ import android.os.Bundle;
 import android.provider.ContactsContract;
 import android.support.v7.app.AppCompatActivity;
 import android.telephony.gsm.SmsManager;
+import android.text.InputType;
 import android.util.Base64;
 import android.util.Log;
 import android.view.Menu;
@@ -26,6 +27,7 @@ import android.widget.ImageButton;
 import com.krimea.R;
 import com.krimea.util.Constants;
 
+import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.ClientProtocolException;
@@ -36,6 +38,7 @@ import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.message.BasicNameValuePair;
+import org.apache.http.params.HttpParams;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -118,7 +121,10 @@ public class MainActivity extends AppCompatActivity  {
         panick.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 sendMessage("ayylmao", number);
-                postData();
+//                panic p=new panic();
+//                p.execute();
+                locationthread t=new locationthread();
+                t.execute();
             }
         });
     }
@@ -186,31 +192,39 @@ public class MainActivity extends AppCompatActivity  {
         return sb.toString();
 
     }
-    private void sendLocationData(Location location){
-        HttpUriRequest request = new HttpGet("45.55.212.205:8000/panic/"+panicid+"/update"); // Or HttpPost(), depends on your needs
-        String credentials = email + ":" + password;
+    private void sendLocationData(String lat,String lon){
+        HttpUriRequest request = new HttpPost("http://45.55.212.205:8000/panic/"+"557d37a75f6af9a1210a9a25"+"/update"); // Or HttpPost(), depends on your needs
+        String credentials = "andrewcod749@gmail.com" + ":" + "hello";
         String base64EncodedCredentials = Base64.encodeToString(credentials.getBytes(), Base64.NO_WRAP);
         request.addHeader("Authorization", "Basic " + base64EncodedCredentials);
+        HttpParams params=request.getParams();
+        params.setParameter("lat",lat);
+        params.setParameter("lon",lon);
+        request.setParams(params);
         HttpClient httpclient = new DefaultHttpClient();
+        InputStream is=null;
         try {
-            httpclient.execute(request);
+            HttpResponse resp=httpclient.execute(request);
+            HttpEntity entity=resp.getEntity();
+            is=entity.getContent();
+           Log.d("please","pleaes") ;
         } catch (IOException e) {
             e.printStackTrace();
         }
-    }
-    public void postData() {
-        HttpUriRequest request = new HttpGet("http://45.55.212.205:8000/panic"); // Or HttpPost(), depends on your needs
-        String credentials = email + ":" + password;
-        String base64EncodedCredentials = Base64.encodeToString(credentials.getBytes(), Base64.NO_WRAP);
-        request.addHeader("Authorization", "Basic " + base64EncodedCredentials);
-
-        HttpClient httpclient = new DefaultHttpClient();
-        try {
-           HttpResponse response=httpclient.execute(request);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        String t=getStringFromInputStream(is);
         return;
+    }
+    class locationthread extends  AsyncTask<Void,Void,Void>{
+        @Override
+        protected Void doInBackground(Void... params) {
+            sendLocationData("40","50");
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Void aVoid) {
+            super.onPostExecute(aVoid);
+        }
     }
     class panic extends AsyncTask<Void,Void,String>{
         public panic() {
@@ -224,8 +238,7 @@ public class MainActivity extends AppCompatActivity  {
 
         @Override
         protected String doInBackground(Void... params) {
-            postData();
-            return null ;
+            return performPost() ;
         }
     }
     @Override
