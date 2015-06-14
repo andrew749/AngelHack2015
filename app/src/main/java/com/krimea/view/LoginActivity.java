@@ -1,8 +1,11 @@
 package com.krimea.view;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -14,6 +17,18 @@ import android.widget.EditText;
 
 import com.krimea.R;
 import com.krimea.util.Constants;
+
+import org.apache.http.HttpRequest;
+
+import java.io.BufferedReader;
+import java.io.DataOutputStream;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.ProtocolException;
+import java.net.URL;
 
 public class LoginActivity extends Activity implements View.OnClickListener {
     private Button login;
@@ -37,10 +52,11 @@ public class LoginActivity extends Activity implements View.OnClickListener {
         }
     };
 
-
+    LoginManager manager;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        manager=new LoginManager(getApplicationContext());
         setContentView(R.layout.activity_login);
         login= (Button) findViewById(R.id.login_button);
         name = (EditText) findViewById(R.id.editText_name);
@@ -58,15 +74,82 @@ public class LoginActivity extends Activity implements View.OnClickListener {
     @Override
     public void onClick(View v) {
         if (v == findViewById(R.id.login_button)) {
-            SharedPreferences sharedPreferences = getSharedPreferences(getString(R.string.app_name), MODE_PRIVATE);
-            SharedPreferences.Editor editor = sharedPreferences.edit();
-            editor.putBoolean(Constants.hasLogged, true);
-            editor.commit();
-            startActivity(new Intent(LoginActivity.this, MainActivity.class));
-            LoginActivity.this.finish();
+            String n = name.getText().toString();
+            String e = password.getText().toString();
+            String p = email.getText().toString();
+            manager.storeUserData(n,e,p);
+            LoginTask exec=new LoginTask(n,e,p);
+            exec.execute();
         }
     }
 
+    class LoginTask extends AsyncTask<Void,Void,Boolean>{
+        String name,email,password;
+        public LoginTask(String name,String email,String password) {
+            this.name=name;
+            this.email=email;
+            this.password=password;
+        }
+
+        @Override
+        protected Boolean doInBackground(Void... params) {
+
+            performPost("email="+email+"&password="+password);
+            return true;
+        }
+
+        @Override
+        protected void onPostExecute(Boolean aVoid) {
+            startActivity(new Intent(LoginActivity.this, MainActivity.class));
+            LoginActivity.this.finish();
+        }
+        public void performPost(String encodedData) {
+            HttpURLConnection urlc = null;
+            OutputStreamWriter out = null;
+            DataOutputStream dataout = null;
+            BufferedReader in = null;
+            try {
+                URL url = new URL(":8000/signup");
+                urlc = (HttpURLConnection) url.openConnection();
+                urlc.setRequestMethod("POST");
+                urlc.setDoOutput(true);
+                urlc.setDoInput(true);
+                urlc.setUseCaches(false);
+                urlc.setAllowUserInteraction(false);
+                urlc.setRequestProperty("Content-Type","application/x-www-form-urlencoded");
+                dataout = new DataOutputStream(urlc.getOutputStream());
+                // perform POST operation
+                dataout.writeBytes(encodedData);
+                int responseCode = urlc.getResponseCode();
+                in = new BufferedReader(new InputStreamReader(urlc.getInputStream()),8096);
+                String response;
+                // write html to System.out for debug
+                while ((response = in.readLine()) != null) {
+                    System.out.println(response);
+                }
+                in.close();
+            } catch (ProtocolException e) {
+                e.printStackTrace();
+            } catch (IOException e) {
+                e.printStackTrace();
+            } finally {
+                if (out != null) {
+                    try {
+                        out.close();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+                if (in != null) {
+                    try {
+                        in.close();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        }
+    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
