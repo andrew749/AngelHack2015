@@ -10,7 +10,6 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.provider.ContactsContract;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -20,10 +19,15 @@ import android.widget.ImageButton;
 import com.krimea.R;
 import com.krimea.util.Constants;
 
-public class MainActivity extends AppCompatActivity implements ActionBar.TabListener {
+import java.util.HashSet;
+import java.util.Set;
+
+public class MainActivity extends AppCompatActivity {
     private ImageButton addContact;
     private SharedPreferences sharedPreferences;
     private SharedPreferences.Editor editor;
+    private Set<String> contacts;
+    private Set<String> numbers;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -32,6 +36,10 @@ public class MainActivity extends AppCompatActivity implements ActionBar.TabList
         addContact = (ImageButton) findViewById(R.id.button_addContact);
         sharedPreferences = getSharedPreferences(getString(R.string.app_name), MODE_PRIVATE);
         editor = sharedPreferences.edit();
+
+        contacts = sharedPreferences.getStringSet(Constants.KEY_CONTACTLIST, new HashSet<String>());
+        numbers = sharedPreferences.getStringSet(Constants.KEY_NUMBERLIST, new HashSet<String>());
+
         addContact.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 Intent intent = new Intent(Intent.ACTION_PICK, ContactsContract.Contacts.CONTENT_URI);
@@ -68,30 +76,21 @@ public class MainActivity extends AppCompatActivity implements ActionBar.TabList
         switch (reqCode) {
             case (Constants.KEY_PICKCONTACT) :
                 if (resultCode == Activity.RESULT_OK) {
+
                     Uri contactData = data.getData();
                     Cursor c =  managedQuery(contactData, null, null, null, null);
-
-                    String contactName = null;
                     if(c.moveToFirst()) {
-                        contactName = c.getString(c.getColumnIndex(ContactsContract.PhoneLookup.DISPLAY_NAME));
-   //                     editor.putString();
+                        contacts.add(c.getString(c.getColumnIndex(ContactsContract.PhoneLookup.DISPLAY_NAME)));
+                        numbers.add(c.getString(c.getColumnIndex(ContactsContract.PhoneLookup.NUMBER)));
                     }
                     }
                 }
     }
-
     @Override
-    public void onTabSelected(ActionBar.Tab tab, FragmentTransaction ft) {
-
+    public void onPause() {
+        if(contacts != null && numbers!=null) {
+            editor.putStringSet(Constants.KEY_CONTACTLIST, contacts);
+            editor.putStringSet(Constants.KEY_NUMBERLIST, numbers);
     }
-
-    @Override
-    public void onTabUnselected(ActionBar.Tab tab, FragmentTransaction ft) {
-
-    }
-
-    @Override
-    public void onTabReselected(ActionBar.Tab tab, FragmentTransaction ft) {
-
     }
 }
