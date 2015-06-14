@@ -113,18 +113,14 @@ public class LoginActivity extends Activity implements View.OnClickListener {
 
         @Override
         protected Boolean doInBackground(Void... params) {
-            return performPost();
+//            return performPost();
+            return true;
         }
 
         @Override
         protected void onPostExecute(Boolean aVoid) {
             startActivity(new Intent(LoginActivity.this, MainActivity.class));
             LoginActivity.this.finish();
-        }
-        private String getB64Auth (String login, String pass) {
-            String source=login+":"+pass;
-            String ret="Basic "+Base64.encodeToString(source.getBytes(),Base64.URL_SAFE| Base64.NO_WRAP);
-            return ret;
         }
         public Boolean performPost() {
             HttpUriRequest request = new HttpPost("http://45.55.212.205:8000/signup");
@@ -143,6 +139,7 @@ public class LoginActivity extends Activity implements View.OnClickListener {
                 return false;
             }
             String t=getStringFromInputStream(is);
+            Log.d("t",t);
             return true;
         }
     }

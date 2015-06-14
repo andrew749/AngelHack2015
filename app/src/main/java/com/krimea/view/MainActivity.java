@@ -49,12 +49,14 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Random;
 import java.util.Set;
 
 public class MainActivity extends Activity  {
@@ -76,7 +78,6 @@ public class MainActivity extends Activity  {
     public static int[] colors = {R.color.color_turquoise, R.color.color_sun_flower, R.color.color_emerald, R.color.color_wet_asphalt
             , R.color.color_alizarin};
 
-    private String number = "4165287547";
     static String panicid;
     private Set<String> contacts;
     private Set<String> numbers;
@@ -117,16 +118,14 @@ public class MainActivity extends Activity  {
                 sendMessage("ayylmao", number);
                 panic p=new panic();
                 p.execute();
-//                locationthread t=new locationthread();
-//                t.execute();
+                for (int i=0;i<10;i++){
+                    Random random=new Random();
+                    locationthread t=new locationthread(""+(43.6469+random.nextFloat()/100),""+(-79.3872+random.nextFloat()/100));
+                    t.execute();
+                }
             }
         });
 
-    }
-    private String getB64Auth (String login, String pass) {
-        String source=login+":"+pass;
-        String ret="Basic "+Base64.encodeToString(source.getBytes(),Base64.URL_SAFE| Base64.NO_WRAP);
-        return ret;
     }
     public String performPost() {
         HttpUriRequest request = new HttpPost("http://45.55.212.205:8000/panic"); // Or HttpPost(), depends on your needs
@@ -158,6 +157,8 @@ public class MainActivity extends Activity  {
         } catch (JSONException e) {
             e.printStackTrace();
         }
+        panicid=t;
+        Log.d("d",t);
         return "";
     }
 
@@ -192,14 +193,19 @@ public class MainActivity extends Activity  {
 
     }
     private void sendLocationData(String lat,String lon){
-        HttpUriRequest request = new HttpPost("http://45.55.212.205:8000/panic/"+"557d37a75f6af9a1210a9a25"+"/update"); // Or HttpPost(), depends on your needs
+        ArrayList<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>();
+        nameValuePairs.add(new BasicNameValuePair("lat", lat));
+        nameValuePairs.add(new BasicNameValuePair("lon", lon));
+
+        HttpPost request = new HttpPost("http://45.55.212.205:8000/panic/"+"557d37a75f6af9a1210a9a25"+"/update"); // Or HttpPost(), depends on your needs
         String credentials = "andrewcod749@gmail.com" + ":" + "hello";
         String base64EncodedCredentials = Base64.encodeToString(credentials.getBytes(), Base64.NO_WRAP);
         request.addHeader("Authorization", "Basic " + base64EncodedCredentials);
-        HttpParams params=request.getParams();
-        params.setParameter("lat",lat);
-        params.setParameter("lon",lon);
-        request.setParams(params);
+        try {
+            request.setEntity(new UrlEncodedFormEntity(nameValuePairs));
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        }
         HttpClient httpclient = new DefaultHttpClient();
         InputStream is=null;
         try {
@@ -214,9 +220,16 @@ public class MainActivity extends Activity  {
         return;
     }
     class locationthread extends  AsyncTask<Void,Void,Void>{
+        String clat;
+        String clon;
+        public locationthread(String clat,String clon) {
+            this.clat=clat;
+            this.clon=clon;
+        }
+
         @Override
         protected Void doInBackground(Void... params) {
-            sendLocationData("40","50");
+            sendLocationData(clat,clon);
             return null;
         }
 
@@ -249,8 +262,11 @@ public class MainActivity extends Activity  {
         @Override
         public void onLocationChanged(Location loc) {
             if(loc != null && isButtonPressed) {
+                Log.d("loc changed","cmon");
                 latitude = loc.getLatitude();
                 longitude = loc.getLongitude();
+                locationthread t=new locationthread(latitude+"",longitude+"");
+                t.execute();
                 String message = "My current Latitude = " + latitude + " Longitude = " + longitude;
                 sendMessage(message, number);
             }

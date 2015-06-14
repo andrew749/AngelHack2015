@@ -22,5 +22,4 @@ public class LoginManager {
         prefs.edit().putString("email", email);
         prefs.edit().putString("password", password);
     }
-
 }
