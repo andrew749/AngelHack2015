@@ -1,13 +1,16 @@
 package com.krimea.view;
 
+import android.app.ActionBar;
 import android.app.Activity;
+import android.app.FragmentTransaction;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
-import android.provider.Contacts;
 import android.provider.ContactsContract;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -15,20 +18,24 @@ import android.widget.ImageButton;
 
 
 import com.krimea.R;
+import com.krimea.util.Constants;
 
-public class MainActivity extends AppCompatActivity  {
+public class MainActivity extends AppCompatActivity implements ActionBar.TabListener {
     private ImageButton addContact;
-    private static final int KEY_PICKCONTACT = 19;
+    private SharedPreferences sharedPreferences;
+    private SharedPreferences.Editor editor;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         addContact = (ImageButton) findViewById(R.id.button_addContact);
+        sharedPreferences = getSharedPreferences(getString(R.string.app_name), MODE_PRIVATE);
+        editor = sharedPreferences.edit();
         addContact.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 Intent intent = new Intent(Intent.ACTION_PICK, ContactsContract.Contacts.CONTENT_URI);
-                startActivityForResult(intent, KEY_PICKCONTACT);
+                startActivityForResult(intent, Constants.KEY_PICKCONTACT);
             }
         });
     }
@@ -59,16 +66,32 @@ public class MainActivity extends AppCompatActivity  {
         super.onActivityResult(reqCode, resultCode, data);
 
         switch (reqCode) {
-            case (KEY_PICKCONTACT) :
+            case (Constants.KEY_PICKCONTACT) :
                 if (resultCode == Activity.RESULT_OK) {
                     Uri contactData = data.getData();
                     Cursor c =  managedQuery(contactData, null, null, null, null);
-                    if (c.moveToFirst()) {
-//                        String name = c.getString(c.getColumnIndexOrThrow(Contacts.People.NAME));
+
+                    String contactName = null;
+                    if(c.moveToFirst()) {
+                        contactName = c.getString(c.getColumnIndex(ContactsContract.PhoneLookup.DISPLAY_NAME));
+   //                     editor.putString();
+                    }
                     }
                 }
-                break;
-        }
     }
 
+    @Override
+    public void onTabSelected(ActionBar.Tab tab, FragmentTransaction ft) {
+
+    }
+
+    @Override
+    public void onTabUnselected(ActionBar.Tab tab, FragmentTransaction ft) {
+
+    }
+
+    @Override
+    public void onTabReselected(ActionBar.Tab tab, FragmentTransaction ft) {
+
+    }
 }

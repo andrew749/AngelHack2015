@@ -13,6 +13,7 @@ import android.widget.Button;
 import android.widget.EditText;
 
 import com.krimea.R;
+import com.krimea.util.Constants;
 
 public class LoginActivity extends Activity implements View.OnClickListener {
     private Button login;
@@ -59,7 +60,7 @@ public class LoginActivity extends Activity implements View.OnClickListener {
         if (v == findViewById(R.id.login_button)) {
             SharedPreferences sharedPreferences = getSharedPreferences(getString(R.string.app_name), MODE_PRIVATE);
             SharedPreferences.Editor editor = sharedPreferences.edit();
-            editor.putBoolean("hasLogged", true);
+            editor.putBoolean(Constants.hasLogged, true);
             editor.commit();
             startActivity(new Intent(LoginActivity.this, MainActivity.class));
             LoginActivity.this.finish();

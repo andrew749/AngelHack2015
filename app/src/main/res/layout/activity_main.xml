@@ -12,4 +12,13 @@
         android:id="@+id/button_addContact"
         android:layout_gravity="right|bottom" />
 
+    <ImageButton
+        android:layout_margin="15dp"
+        android:layout_width="373dp"
+        android:layout_height="373dp"
+        android:src="@drawable/ic_report_problem_white_48dp"
+        android:background="@drawable/circle"
+        android:id="@+id/button_panickk"
+        android:layout_gravity="center_horizontal|top" />
+
 </FrameLayout>
