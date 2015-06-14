@@ -13,8 +13,8 @@
 
     <ImageButton
         android:layout_margin="15dp"
-        android:layout_width="70dp"
-        android:layout_height="70dp"
+        android:layout_width="83dp"
+        android:layout_height="83dp"
         android:src="@drawable/ic_plus"
         android:background="@drawable/circle"
         android:id="@+id/button_addContact"
@@ -27,6 +27,6 @@ android:layout_width="83dp"
 android:layout_height="83dp"
 android:src="@drawable/ic_report_problem_white_48dp"
 android:background="@drawable/circle"
-           android:id="@+id/button_panick"
+        android:id="@+id/button_panick"
 android:layout_gravity="left|bottom" />
 </FrameLayout>

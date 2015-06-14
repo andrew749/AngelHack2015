@@ -7,10 +7,10 @@
     android:baselineAligned="false">
 
     <info.hoang8f.widget.FButton
-        fbutton:buttonColor="@color/color_turquoise"
-        android:textColor="@android:color/white"
+        android:textColor="@color/accentPinkA400"
         android:layout_width="match_parent"
         android:layout_height="89dp"
+        android:textSize="28sp"
         android:id="@+id/contact_button"
         android:layout_gravity="center_horizontal|top"
         android:cropToPadding="false" />

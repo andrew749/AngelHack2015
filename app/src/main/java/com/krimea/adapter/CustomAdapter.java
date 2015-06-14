@@ -54,14 +54,7 @@ public class CustomAdapter extends BaseAdapter {
         rowView = inflater.inflate(R.layout.contacts_list, null);
         holder.button = (FButton) rowView.findViewById(R.id.contact_button);
         holder.button.setText(resultArray[position]);
-        holder.button.setButtonColor(col[position]);
-        holder.button.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Toast.makeText(context, "Panic Mode Enabled", Toast.LENGTH_SHORT).show();
-                MainActivity.isButtonPressed = true;
-            }
-        });
+        holder.button.setButtonColor(context.getResources().getColor(R.color.white));
         return rowView;
     }
 }
