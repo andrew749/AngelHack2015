@@ -52,6 +52,9 @@ import java.util.Set;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import io.branch.referral.Branch;
+import io.branch.referral.BranchError;
+
 public class MainActivity extends Activity {
     private ImageButton addContact;
     private SharedPreferences sharedPreferences;
@@ -407,6 +410,27 @@ public class MainActivity extends Activity {
             numbers.add(number);
             lv.setAdapter(new CustomAdapter(this, contacts, colors));
         }
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        Branch.getInstance(getApplicationContext()).closeSession();
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        Branch branch = Branch.getInstance(getApplicationContext());
+        branch.initSession(new Branch.BranchReferralInitListener() {
+            @Override
+            public void onInitFinished(JSONObject referringParams, BranchError error) {
+                if (error == null) {
+                    // params are the deep linked params associated with the link that the user clicked before showing up
+                    Log.i("BranchConfigTest", "t link data: " + referringParams.toString());
+                }
+            }
+        }, this.getIntent().getData(), this);
     }
 
     @Override
